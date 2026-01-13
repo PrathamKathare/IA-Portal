@@ -26,7 +26,43 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// ✅ Recommended: add /api prefix for production
+/* ✅ HOME PAGE (shows data) */
+app.get("/", async (req, res) => {
+  try {
+    const User = require("./models/User");
+    const Marks = require("./models/Marks");
+
+    const totalUsers = await User.countDocuments();
+    const totalMarks = await Marks.countDocuments();
+
+    const sampleUsers = await User.find(
+      {},
+      { username: 1, role: 1, _id: 0 }
+    ).limit(10);
+
+    const sampleMarks = await Marks.find(
+      {},
+      { student: 1, course: 1, marks: 1, _id: 0 }
+    ).limit(10);
+
+    res.json({
+      status: "✅ IA-Portal Backend Running",
+      database: "✅ MongoDB Connected",
+      totalUsers,
+      totalMarks,
+      sampleUsers,
+      sampleMarks,
+      time: new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "⚠️ Backend running but error in fetching data",
+      error: err.message,
+    });
+  }
+});
+
+// ✅ API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/marks", marksRoutes);
 
