@@ -12,18 +12,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ Use ENV variable for DB (Render/Cloud)
+const MONGO_URI = process.env.MONGO_URI;
+
 mongoose
-  .connect("mongodb://127.0.0.1:27017/ia_portal")
-  .then(() => {
-    console.log("MongoDB connected");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-  });
+  .connect(MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-app.use("/auth", authRoutes);
-app.use("/marks", marksRoutes);
+// ✅ Recommended: add /api prefix for production
+app.use("/api/auth", authRoutes);
+app.use("/api/marks", marksRoutes);
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+// ✅ Render requires dynamic port
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
