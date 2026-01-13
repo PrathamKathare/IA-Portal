@@ -5,24 +5,65 @@ function FacultyDashboard() {
   const [course, setCourse] = useState("Course1");
   const [marks, setMarks] = useState("");
   const [stats, setStats] = useState(null);
+  const [message, setMessage] = useState("");
 
   const logout = () => {
     window.location.href = "/";
   };
 
   const uploadMarks = async () => {
-    await fetch("http://localhost:5000/marks/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ student, course, marks })
-    });
-    alert("Marks saved successfully");
+    setMessage("");
+
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/marks/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student,
+          course,
+          marks: Number(marks),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage("✅ Marks saved successfully");
+        alert("Marks saved successfully");
+
+        // reset inputs
+        setStudent("");
+        setMarks("");
+      } else {
+        setMessage(data.message || "❌ Failed to save marks");
+      }
+    } catch (error) {
+      console.error("Error uploading marks:", error);
+      setMessage("❌ Server not reachable");
+    }
   };
 
   const loadStats = async () => {
-    const res = await fetch(`http://localhost:5000/marks/stats/${course}`);
-    const data = await res.json();
-    setStats(data);
+    setMessage("");
+
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/marks/stats/${course}`
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setStats(data);
+      } else {
+        setMessage(data.message || "❌ Could not load statistics");
+        setStats(null);
+      }
+    } catch (error) {
+      console.error("Error loading stats:", error);
+      setMessage("❌ Server not reachable");
+      setStats(null);
+    }
   };
 
   return (
@@ -61,6 +102,10 @@ function FacultyDashboard() {
           />
 
           <button onClick={uploadMarks}>Save Marks</button>
+
+          {message && (
+            <p style={{ marginTop: "10px", fontWeight: "600" }}>{message}</p>
+          )}
         </div>
 
         <div className="section">
@@ -70,13 +115,34 @@ function FacultyDashboard() {
           {stats && (
             <table>
               <tbody>
-                <tr><td>Average</td><td>{stats.average}</td></tr>
-                <tr><td>S Grade</td><td>{stats.grades.S}</td></tr>
-                <tr><td>A Grade</td><td>{stats.grades.A}</td></tr>
-                <tr><td>B Grade</td><td>{stats.grades.B}</td></tr>
-                <tr><td>C Grade</td><td>{stats.grades.C}</td></tr>
-                <tr><td>D Grade</td><td>{stats.grades.D}</td></tr>
-                <tr><td>F Grade</td><td>{stats.grades.F}</td></tr>
+                <tr>
+                  <td>Average</td>
+                  <td>{stats.average}</td>
+                </tr>
+                <tr>
+                  <td>S Grade</td>
+                  <td>{stats.grades.S}</td>
+                </tr>
+                <tr>
+                  <td>A Grade</td>
+                  <td>{stats.grades.A}</td>
+                </tr>
+                <tr>
+                  <td>B Grade</td>
+                  <td>{stats.grades.B}</td>
+                </tr>
+                <tr>
+                  <td>C Grade</td>
+                  <td>{stats.grades.C}</td>
+                </tr>
+                <tr>
+                  <td>D Grade</td>
+                  <td>{stats.grades.D}</td>
+                </tr>
+                <tr>
+                  <td>F Grade</td>
+                  <td>{stats.grades.F}</td>
+                </tr>
               </tbody>
             </table>
           )}

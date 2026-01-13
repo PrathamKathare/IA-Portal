@@ -4,15 +4,32 @@ import { useParams } from "react-router-dom";
 function StudentDashboard() {
   const { username } = useParams();
   const [marks, setMarks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const logout = () => {
     window.location.href = "/";
   };
 
   useEffect(() => {
-    fetch(`http://localhost:5000/marks/student/${username}`)
-      .then(res => res.json())
-      .then(data => setMarks(data));
+    const fetchMarks = async () => {
+      try {
+        setLoading(true);
+
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/marks/student/${username}`
+        );
+
+        const data = await res.json();
+        setMarks(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching marks:", error);
+        setMarks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMarks();
   }, [username]);
 
   const total = marks.reduce((sum, m) => sum + m.marks, 0);
@@ -26,7 +43,9 @@ function StudentDashboard() {
           <h1>Student Dashboard</h1>
           <span>Welcome, {username}</span>
         </div>
-        <button className="logout" onClick={logout}>Logout</button>
+        <button className="logout" onClick={logout}>
+          Logout
+        </button>
       </div>
 
       {/* Profile Summary */}
@@ -36,15 +55,21 @@ function StudentDashboard() {
           <table>
             <tbody>
               <tr>
-                <td><strong>Username</strong></td>
+                <td>
+                  <strong>Username</strong>
+                </td>
                 <td>{username}</td>
               </tr>
               <tr>
-                <td><strong>Total Marks</strong></td>
+                <td>
+                  <strong>Total Marks</strong>
+                </td>
                 <td>{total}</td>
               </tr>
               <tr>
-                <td><strong>Average</strong></td>
+                <td>
+                  <strong>Average</strong>
+                </td>
                 <td>{average}</td>
               </tr>
             </tbody>
@@ -57,9 +82,11 @@ function StudentDashboard() {
         <div className="section">
           <h2>Your Marks</h2>
 
-          {marks.length === 0 && <p>No marks available</p>}
+          {loading && <p>Loading marks...</p>}
 
-          {marks.length > 0 && (
+          {!loading && marks.length === 0 && <p>No marks available</p>}
+
+          {!loading && marks.length > 0 && (
             <table>
               <thead>
                 <tr>
@@ -81,7 +108,7 @@ function StudentDashboard() {
                             ? "#2563eb"
                             : m.marks >= 60
                             ? "#f59e0b"
-                            : "#dc2626"
+                            : "#dc2626",
                       }}
                     >
                       {m.marks}

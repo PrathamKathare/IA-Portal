@@ -5,7 +5,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-    const login = async () => {
+  const login = async () => {
     setMessage("");
 
     try {
@@ -30,18 +30,16 @@ function Login() {
         setMessage(data.message || "Login failed");
       }
     } catch (err) {
+      console.error(err);
       setMessage("Server not reachable");
     }
   };
-
 
   return (
     <div className="login-wrapper">
       <div className="login-card">
         <h2>Internal Assessment Portal</h2>
-        <p className="login-subtitle">
-          Academic Performance Management System
-        </p>
+        <p className="login-subtitle">Academic Performance Management System</p>
 
         <div className="badges">
           <span className="badge">Faculty Access</span>
@@ -61,7 +59,6 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {/* 🔴 IMPORTANT FIX HERE */}
         <button type="button" onClick={login}>
           Login
         </button>
@@ -73,7 +70,8 @@ function Login() {
         )}
 
         <div className="login-footer">
-          © 2026 lmao final eval<br />
+          © 2026 lmao final eval
+          <br />
           structured eval
         </div>
       </div>
