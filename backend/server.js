@@ -9,7 +9,13 @@ const marksRoutes = require("./routes/marks");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://ia-portal-oobw.vercel.app"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
+
 app.use(express.json());
 
 // ✅ Use ENV variable for DB (Render/Cloud)
